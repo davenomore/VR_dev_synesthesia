@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <title>Synesthetic Pulse - Mode Selection</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Audio-reactive VR experience for Quest 3">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0015 0%, #1a0033 50%, #0a0a20 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150vmax;
+            height: 150vmax;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(ellipse,
+                    rgba(102, 126, 234, 0.1) 0%,
+                    transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #00ff88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 3rem;
+        }
+
+        .modes {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mode-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 280px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-10px);
+            border-color: #667eea;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .mode-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .mode-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .mode-description {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+
+        .mode-card.particles .mode-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .mode-card.sphere .mode-icon {
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .features {
+            margin-top: 1rem;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .features li {
+            margin: 0.3rem 0;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .footer {
+            margin-top: 3rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .modes {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .mode-card {
+                width: 90%;
+                max-width: 320px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <h1>✨ Synesthetic Pulse</h1>
+        <p class="subtitle">Audio-Reactive VR Experience</p>
+
+        <div class="modes">
+            <!-- Particle Mode -->
+            <a href="synesthetic.html" class="mode-card particles">
+                <span class="mode-icon">🌌</span>
+                <h2 class="mode-title">Particle Storm</h2>
+                <p class="mode-description">
+                    100,000 részecske reagál a zenére és a kezeidre
+                </p>
+                <ul class="features">
+                    <li>🤏 Pinch: Vonzás + Robbanás</li>
+                    <li>✊ Ököl: Taszítás</li>
+                    <li>👆 Mutatás: Sugár</li>
+                    <li>🖐️ Nyitott tenyér: Szórás</li>
+                </ul>
+            </a>
+
+            <!-- Fluid Sphere Mode -->
+            <a href="react-sphere.html?v=new" class="mode-card sphere">
+                <span class="mode-icon">🔮</span>
+                <h2 class="mode-title">Fluid Sphere</h2>
+                <p class="mode-description">
+                    Organikus, folyadék-szerű gömb ami zenére pulzál
+                </p>
+                <ul class="features">
+                    <li>🌊 Folyadék szimuláció</li>
+                    <li>🎵 Audio-reaktív deformáció</li>
+                    <li>✋ Kéz interakció</li>
+                    <li>✨ Shader effektek</li>
+                </ul>
+            </a>
+        </div>
+
+        <p class="footer">
+            Quest 3 optimalizált • Hand Tracking • WebXR
+        </p>
+    </div>
+</body>
+
+</html>

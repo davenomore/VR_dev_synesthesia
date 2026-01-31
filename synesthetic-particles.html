@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Particle Storm Mode</title>
+    <meta charset="utf-8">
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script>
+        if (typeof THREE !== 'undefined' && !THREE.Geometry) {
+            THREE.Geometry = THREE.BufferGeometry;
+        }
+    </script>
+    <style>
+        body {
+            background: #000;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-btn">← Vissza a Menübe</a>
+
+    <a-scene renderer="antialias: false; colorManagement: true; foveationLevel: 0;" background="color: #000"
+        audio-analyzer hand-distance gesture-detector auto-music>
+
+        <script type="module">
+            import './src/systems/audio-analyzer.js';
+            import './src/systems/hand-distance.js';
+            import './src/systems/gesture-detector.js';
+            import './src/components/gpu-particles.js';
+            import './src/components/hand-attractor.js';
+            import './src/components/auto-music.js';
+        </script>
+
+        <!-- PARTICLES (GPU POWERED - 256x256 = 65,536 particles) -->
+        <a-entity id="particles" gpu-particles="count: 256" position="0 1.5 -2">
+        </a-entity>
+
+
+
+        <!-- RIG -->
+        <a-entity id="rig">
+            <a-camera position="0 1.6 0"></a-camera>
+
+            <a-entity id="left-hand" hand-tracking-controls="hand: left" hand-gestures="hand: left"
+                hand-attractor="hand: left; strength: 15; radius: 1.2">
+            </a-entity>
+
+            <a-entity id="right-hand" hand-tracking-controls="hand: right" hand-gestures="hand: right"
+                hand-attractor="hand: right; strength: 15; radius: 1.2">
+            </a-entity>
+        </a-entity>
+
+    </a-scene>
+</body>
+
+</html>

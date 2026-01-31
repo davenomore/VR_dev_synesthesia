@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Synesthetic Pulse - Menu</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(to right, #667eea, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 250px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #00ff88;
+        }
+
+        .icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .desc {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>✨ Synesthetic Pulse</h1>
+
+    <div class="container">
+        <!-- LINK TO PARTICLE MODE -->
+        <a href="synesthetic-particles.html" class="card">
+            <span class="icon">🌌</span>
+            <div class="title">Particle Storm</div>
+            <div class="desc">100K részecske, gesztus vezérlés</div>
+        </a>
+
+        <!-- LINK TO SPHERE MODE -->
+        <a href="synesthetic-sphere.html" class="card">
+            <span class="icon">🔮</span>
+            <div class="title">Fluid Sphere</div>
+            <div class="desc">Organikus gömb, mágneses kéz</div>
+        </a>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Three.js Particle Storm (Native WebXR)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            margin: 0;
+            background-color: #000;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { VRButton } from 'three/addons/webxr/VRButton.js';
+        import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+        import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
+
+        let container;
+        let camera, scene, renderer;
+        let controller1, controller2;
+        let hand1, hand2;
+
+        // Physics
+        let particleMesh;
+        let particlesData = [];
+        const PARTICLE_COUNT = 30000;
+        const PARTICLE_SIZE = 0.004;
+        const SPREAD = 3;
+
+        // Simplex Noise (Inline)
+        const SimplexNoise = (function () {
+            const perm = new Uint8Array(512);
+            const grad4 = [[0, 1, 1, 1], [0, 1, 1, -1], [0, 1, -1, 1], [0, 1, -1, -1], [0, -1, 1, 1], [0, -1, 1, -1], [0, -1, -1, 1], [0, -1, -1, -1], [1, 0, 1, 1], [1, 0, 1, -1], [1, 0, -1, 1], [1, 0, -1, -1], [-1, 0, 1, 1], [-1, 0, 1, -1], [-1, 0, -1, 1], [-1, 0, -1, -1], [1, 1, 0, 1], [1, 1, 0, -1], [1, -1, 0, 1], [1, -1, 0, -1], [-1, 1, 0, 1], [-1, 1, 0, -1], [-1, -1, 0, 1], [-1, -1, 0, -1], [1, 1, 1, 0], [1, 1, -1, 0], [1, -1, 1, 0], [1, -1, -1, 0], [-1, 1, 1, 0], [-1, 1, -1, 0], [-1, -1, 1, 0], [-1, -1, -1, 0]];
+            const p = new Uint8Array(256);
+            for (let i = 0; i < 256; i++) p[i] = i;
+            for (let i = 255; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[p[i], p[j]] = [p[j], p[i]]; }
+            for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+            const F4 = (Math.sqrt(5) - 1) / 4, G4 = (5 - Math.sqrt(5)) / 20;
+            return {
+                noise4D: function (x, y, z, w) {
+                    const s = (x + y + z + w) * F4;
+                    const i = Math.floor(x + s), j = Math.floor(y + s), k = Math.floor(z + s), l = Math.floor(w + s);
+                    const t = (i + j + k + l) * G4;
+                    const X0 = i - t, Y0 = j - t, Z0 = k - t, W0 = l - t;
+                    const x0 = x - X0, y0 = y - Y0, z0 = z - Z0, w0 = w - W0;
+                    let n = 0;
+                    const t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0 - w0 * w0;
+                    if (t0 > 0) {
+                        const gi = perm[(i + perm[(j + perm[(k + perm[l & 255]) & 255]) & 255]) & 255] % 32;
+                        const g = grad4[gi];
+                        n = t0 * t0 * t0 * t0 * (g[0] * x0 + g[1] * y0 + g[2] * z0 + g[3] * w0);
+                    }
+                    return n * 27;
+                }
+            };
+        })();
+
+        function curlNoise4DFast(x, y, z, w) {
+            const n1 = SimplexNoise.noise4D(x, y, z, w);
+            const n2 = SimplexNoise.noise4D(x + 100, y + 100, z + 100, w);
+            const n3 = SimplexNoise.noise4D(x + 200, y + 200, z + 200, w);
+            return [n2 - n3, n3 - n1, n1 - n2];
+        }
+
+        init();
+        animate();
+
+        function init() {
+            container = document.createElement('div');
+            document.body.appendChild(container);
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000);
+
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 1.6, 3);
+
+            // Rig to move user
+            const rig = new THREE.Group();
+            scene.add(rig);
+            rig.add(camera);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.xr.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            document.body.appendChild(VRButton.createButton(renderer));
+
+            // Setup Controllers & Hands
+            const controllerModelFactory = new XRControllerModelFactory();
+            const handModelFactory = new XRHandModelFactory();
+
+            // Controller 1
+            controller1 = renderer.xr.getController(0);
+            controller1.add(controllerModelFactory.createControllerModel(controller1));
+            rig.add(controller1);
+
+            hand1 = renderer.xr.getHand(0);
+            hand1.add(handModelFactory.createHandModel(hand1, 'mesh'));
+            rig.add(hand1);
+
+            // Controller 2
+            controller2 = renderer.xr.getController(1);
+            controller2.add(controllerModelFactory.createControllerModel(controller2));
+            rig.add(controller2);
+
+            hand2 = renderer.xr.getHand(1);
+            hand2.add(handModelFactory.createHandModel(hand2, 'mesh'));
+            rig.add(hand2);
+
+            // Events for Select (Pinch) - Tracks state on the controller object
+            function onSelectStart() { this.userData.isSelecting = true; }
+            function onSelectEnd() { this.userData.isSelecting = false; }
+
+            controller1.addEventListener('selectstart', onSelectStart);
+            controller1.addEventListener('selectend', onSelectEnd);
+            controller2.addEventListener('selectstart', onSelectStart);
+            controller2.addEventListener('selectend', onSelectEnd);
+
+            initParticles();
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function initParticles() {
+            const geometry = new THREE.IcosahedronGeometry(PARTICLE_SIZE, 1);
+            const material = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            particleMesh = new THREE.InstancedMesh(geometry, material, PARTICLE_COUNT);
+            particleMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+            particleMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(PARTICLE_COUNT * 3), 3);
+
+            const colorLow = new THREE.Color('#1a0033');
+            const dummy = new THREE.Object3D();
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                const r = Math.pow(Math.random(), 0.33) * SPREAD;
+
+                const x = r * Math.sin(phi) * Math.cos(theta);
+                const y = r * Math.sin(phi) * Math.sin(theta);
+                const z = r * Math.cos(phi);
+
+                particlesData.push({
+                    x, y, z,
+                    vx: 0, vy: 0, vz: 0,
+                    lifetime: Math.random() * 10,
+                    scale: 0.5 + Math.random() * 0.5
+                });
+
+                dummy.position.set(x, y, z);
+                dummy.scale.setScalar(particlesData[i].scale);
+                dummy.updateMatrix();
+                particleMesh.setMatrixAt(i, dummy.matrix);
+                particleMesh.setColorAt(i, colorLow);
+            }
+            scene.add(particleMesh);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            renderer.setAnimationLoop(render);
+        }
+
+        function render() {
+            const time = performance.now() * 0.001;
+            const dt = 0.016; // Fixed step
+
+            const dummy = new THREE.Object3D();
+
+            // --- INPUT HANDLING ---
+            const attractors = [];
+
+            const session = renderer.xr.getSession();
+            if (session) {
+                // Better: Iterate controllers 0 and 1.
+                [controller1, controller2].forEach((ctrl, i) => {
+                    if (ctrl.userData.isSelecting && session.inputSources[i]) {
+                        attractors.push({
+                            x: ctrl.position.x,
+                            y: ctrl.position.y,
+                            z: ctrl.position.z,
+                            hand: session.inputSources[i].handedness,
+                            radius: 1.2,
+                            strength: 3.0
+                        });
+                    }
+                });
+            }
+
+            // --- PHYSICS LOOP ---
+            const colorLow = new THREE.Color('#1a0033');
+            const colorMid = new THREE.Color('#00ff88');
+            const colorHigh = new THREE.Color('#aaddff');
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const p = particlesData[i];
+
+                // 1. Curl Noise
+                const noiseScale = 0.5;
+                const curl = curlNoise4DFast(p.x * noiseScale, p.y * noiseScale, p.z * noiseScale, time + p.lifetime);
+                const velScale = 0.02;
+
+                p.vx += curl[0] * velScale * dt;
+                p.vy += curl[1] * velScale * dt;
+                p.vz += curl[2] * velScale * dt;
+
+                // 2. Attractors
+                for (const att of attractors) {
+                    const dx = att.x - p.x;
+                    const dy = att.y - p.y;
+                    const dz = att.z - p.z;
+                    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.001;
+
+                    if (dist < att.radius) {
+                        // Force calculation
+                        const force = (1 - dist / att.radius) * att.strength * 0.01;
+                        const f = Math.min(Math.abs(force), 0.5) * Math.sign(force);
+
+                        const isLeft = (att.hand === 'left');
+                        if (isLeft) {
+                            // VORTEX
+                            const pull = f * dt;
+                            p.vx += (dx / dist) * pull;
+                            p.vy += (dy / dist) * pull;
+                            p.vz += (dz / dist) * pull;
+
+                            // Swirl
+                            const swirlStr = 2.0;
+                            const spin = (f * swirlStr * (1.0 / (dist + 0.4))) * dt;
+                            // Cross(Up, Dir) -> Up=(0,1,0) -> (-z, 0, x)
+                            // Tangent:
+                            let sx = -dz;
+                            let sz = dx;
+                            const sLen = Math.sqrt(sx * sx + sz * sz) + 0.001;
+                            p.vx += (sx / sLen) * spin;
+                            p.vz += (sz / sLen) * spin;
+
+                        } else {
+                            // DISK
+                            if (dist < 0.2) {
+                                // Repel
+                                const repel = f * 5.0 * dt;
+                                p.vx -= (dx / dist) * repel;
+                                p.vy -= (dy / dist) * repel;
+                                p.vz -= (dz / dist) * repel;
+                            } else {
+                                // Attract
+                                const pull = f * dt;
+                                p.vx += (dx / dist) * pull;
+                                p.vy += (dy / dist) * pull;
+                                p.vz += (dz / dist) * pull;
+                            }
+                        }
+                    }
+                }
+
+                // Damping & Move
+                p.vx *= 0.98;
+                p.vy *= 0.98;
+                p.vz *= 0.98;
+
+                p.x += p.vx;
+                p.y += p.vy;
+                p.z += p.vz;
+
+                // Containment
+                const d = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+                if (d > SPREAD * 1.5) {
+                    const f = SPREAD / d;
+                    p.x *= f; p.y *= f; p.z *= f;
+                }
+
+                // Update Mesh
+                dummy.position.set(p.x, p.y, p.z);
+                dummy.scale.setScalar(p.scale);
+                dummy.updateMatrix();
+                particleMesh.setMatrixAt(i, dummy.matrix);
+
+                // Update Color based on velocity
+                const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy + p.vz * p.vz);
+                if (speed < 0.01) {
+                    particleMesh.setColorAt(i, colorLow);
+                } else if (speed < 0.05) {
+                    particleMesh.setColorAt(i, colorMid);
+                } else {
+                    particleMesh.setColorAt(i, colorHigh);
+                }
+            }
+
+            particleMesh.instanceMatrix.needsUpdate = true;
+            if (particleMesh.instanceColor) { // Check if instanceColor exists
+                particleMesh.instanceColor.needsUpdate = true;
+            }
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+
+</html>
