@@ -13,7 +13,9 @@ AFRAME.registerComponent('audio-ui', {
     // Add your own MP3s to /public/audio/ folder
     demoTracks: [
         { name: '🎵 Electronic', url: '/audio/demo-electronic.mp3' },
-        { name: '❤️ Hegyszíve', url: '/audio/hegyszive.mp3' }
+        { name: '🌊 Ambient', url: '/audio/demo-ambient.mp3' },
+        { name: '🎸 Rock', url: '/audio/demo-rock.mp3' },
+        { name: '🎹 Piano', url: '/audio/demo-piano.mp3' }
     ],
 
     init: function () {
@@ -294,7 +296,7 @@ AFRAME.registerComponent('audio-ui', {
             this.status.textContent = '✅ ' + name;
             this.playBtn.disabled = false;
         } catch (err) {
-            this.status.textContent = '❌ Failed to load URL (CORS?)';
+            this.status.textContent = '❌ Error: ' + err.message;
             console.error('URL load error:', err);
         }
     },

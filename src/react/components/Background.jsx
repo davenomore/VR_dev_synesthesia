@@ -1,36 +1,48 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 export default function Background() {
-    const shader = useMemo(() => ({
-        vertexShader: `
-      varying vec2 v_uv;
-      void main() {
-        v_uv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-        fragmentShader: `
-      varying vec2 v_uv;
-      uniform vec3 u_color0;
-      uniform vec3 u_color1;
+  const materialRef = useRef();
 
-      void main() {
-        gl_FragColor = vec4(mix(u_color0, u_color1, v_uv.x), 1.0);
-      }
-    `,
-        uniforms: {
-            u_color0: { value: new THREE.Color("#AEB2B5") },
-            u_color1: { value: new THREE.Color("#939A9D") }
-        },
-        side: THREE.BackSide,
-        depthWrite: false
-    }), []);
+  const shader = useMemo(() => ({
+    vertexShader: `
+            varying vec2 v_uv;
+            void main() {
+                v_uv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+    fragmentShader: `
+            varying vec2 v_uv;
+            uniform float u_time;
 
-    return (
-        <mesh>
-            <sphereGeometry args={[100, 32, 32]} />
-            <shaderMaterial args={[shader]} />
-        </mesh>
-    );
+            void main() {
+                // Simple cosmic gradient
+                vec3 deepBlue = vec3(0.01, 0.01, 0.06);
+                vec3 purple = vec3(0.04, 0.01, 0.08);
+                vec3 color = mix(deepBlue, purple, v_uv.y);
+                
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `,
+    uniforms: {
+      u_time: { value: 0.0 }
+    },
+    side: THREE.BackSide,
+    depthWrite: false
+  }), []);
+
+  useFrame((state) => {
+    if (materialRef.current) {
+      materialRef.current.uniforms.u_time.value = state.clock.elapsedTime;
+    }
+  });
+
+  return (
+    <mesh>
+      <sphereGeometry args={[100, 32, 32]} />
+      <shaderMaterial ref={materialRef} args={[shader]} />
+    </mesh>
+  );
 }

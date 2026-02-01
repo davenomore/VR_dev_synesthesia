@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [basicSsl(), react()],
+    base: '/VR_dev_synesthesia/',
     server: {
         host: true, // Listen on all local IPs
         port: 3000, // Fixed port

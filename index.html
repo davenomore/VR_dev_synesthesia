@@ -286,7 +286,9 @@
         <div class="row">
             <button class="demo-btn" onclick="loadDemo('/audio/demo-electronic.mp3', '🎵 Electronic')">🎵
                 Electronic</button>
-            <button class="demo-btn" onclick="loadDemo('/audio/hegyszive.mp3', '❤️ Hegyszíve')">❤️ Hegyszíve</button>
+            <button class="demo-btn" onclick="loadDemo('/audio/demo-ambient.mp3', '🌊 Ambient')">🌊 Ambient</button>
+            <button class="demo-btn" onclick="loadDemo('/audio/demo-rock.mp3', '🎸 Rock')">🎸 Rock</button>
+            <button class="demo-btn" onclick="loadDemo('/audio/demo-piano.mp3', '🎹 Piano')">🎹 Piano</button>
         </div>
 
         <!-- Divider -->
@@ -334,7 +336,7 @@
         <!-- LINK TO SPHERE MODE -->
         <a href="react-sphere.html?v=new" class="card">
             <span class="icon">🔮</span>
-            <div class="title" data-lang="sphereTitle">Fluid Sphere</div>
+            <div class="title" data-lang="sphereTitle">Pulse Orb</div>
             <div class="desc" data-lang="sphereDesc">Organikus gömb, mágneses kéz</div>
             <div class="instructions" data-lang="sphereInstr">🧲 Nyújtsd a kezed a gömb vonzásához.</div>
         </a>
@@ -383,7 +385,7 @@
                 setupPreview(file);
                 updateStatus('✅ ' + name, false, true); // True = IsRawText
             } catch (e) {
-                updateStatus('audioStatusError');
+                updateStatus('Error: ' + e.message, false, true); // Show actual error
                 console.error(e);
             }
         };
@@ -483,7 +485,7 @@
                 particleTitle: "Részecske Vihar",
                 particleDesc: "30K részecske, gesztus vezérlés",
                 particleInstr: "👋 Húzd a kezed a részecskeörvény irányításához.",
-                sphereTitle: "Folyékony Gömb",
+                sphereTitle: "Pulzáló Gömb",
                 sphereDesc: "Organikus gömb, mágneses kéz",
                 sphereInstr: "🧲 Nyújtsd a kezed a gömb vonzásához.",
                 warpTitle: "Dimenzió Ugrás",
@@ -506,7 +508,7 @@
                 particleTitle: "Particle Storm",
                 particleDesc: "30K particles, gesture control",
                 particleInstr: "👋 Wave hands to control the particles.",
-                sphereTitle: "Fluid Sphere",
+                sphereTitle: "Pulse Orb",
                 sphereDesc: "Organic sphere, magnetic hand",
                 sphereInstr: "🧲 Reach out to attract the sphere.",
                 warpTitle: "Dimension Warp",

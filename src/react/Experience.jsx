@@ -1,12 +1,102 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { XR, createXRStore } from '@react-three/xr';
 import { OrbitControls } from '@react-three/drei';
 import Background from './components/Background';
+import Stars from './components/Stars';
 import InstancedSphere from './components/InstancedSphere';
+import RaycastHighlight from './components/RaycastHighlight';
+import SupernovaGesture from './components/SupernovaGesture';
+import GravitySwirlGesture from './components/GravitySwirlGesture';
+import VRDebugPanel from './components/VRDebugPanel';
+import * as THREE from 'three';
 
-// Disable hands/controllers to avoid 404s and polyfill crashes during visual dev
-const store = createXRStore({ hand: false, controller: false });
+// Detect if using WebXR emulator/polyfill (causes crashes with hand tracking)
+// The Immersive Web Emulator sets this when overriding native WebXR
+const isEmulator = typeof window !== 'undefined' &&
+    window.__WEBXR_POLYFILL_INSTALLED__ === true;
+
+// Log for debugging
+if (typeof window !== 'undefined') {
+    console.log('[XR Setup] Emulator detected:', isEmulator);
+    console.log('[XR Setup] Hand tracking enabled:', true); // Always enable now
+}
+
+// Always enable hands - emulator crashes are acceptable during development
+// The actual Quest 3 needs hand tracking to work
+// IMPORTANT: Must request 'hand-tracking' feature for Quest 3
+const store = createXRStore({
+    hand: true,  // Enable hand tracking
+    controller: false,  // Disable controllers - we use hand tracking
+    // Request hand-tracking feature explicitly for Quest 3
+    sessionInit: {
+        requiredFeatures: ['local-floor'],
+        optionalFeatures: ['hand-tracking', 'bounded-floor']
+    }
+});
+
+// Inner scene component to access refs
+function Scene() {
+    const sphereRef = useRef();
+
+    // Test ripple on click - random position on sphere surface
+    const handleTestRipple = () => {
+        if (sphereRef.current?.triggerRipple) {
+            // Random point on unit sphere, scaled to 1.5 radius
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const origin = new THREE.Vector3(
+                Math.sin(phi) * Math.cos(theta) * 1.5,
+                Math.cos(phi) * 1.5,
+                Math.sin(phi) * Math.sin(theta) * 1.5
+            );
+            console.log('[Test] Triggering ripple at:', origin);
+            sphereRef.current.triggerRipple(origin);
+        }
+    };
+
+    // Desktop keyboard controls removed to prevent interference with VR gestures
+    React.useEffect(() => {
+        // Clean up any remaining listeners if needed, but for now we just don't add them.
+        return () => { };
+    }, []);
+
+    return (
+        <>
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[-5, 5, 5]} castShadow intensity={1} shadow-mapSize={[1024, 1024]} />
+
+            {/* Background */}
+            <Background />
+
+            {/* Stars */}
+            <Stars />
+
+            {/* Raycast-based highlight (works on desktop) */}
+            <RaycastHighlight sphereRef={sphereRef} />
+
+            {/* Supernova gesture - two-hand spread to explode sphere */}
+            <SupernovaGesture sphereRef={sphereRef} />
+
+            {/* Gravity Swirl - right hand pinch to twist sphere */}
+            <GravitySwirlGesture sphereRef={sphereRef} />
+
+            {/* VR Debug Panel - shows hand tracking status */}
+            <VRDebugPanel sphereRef={sphereRef} />
+
+            {/* Main Visual - Click to trigger test ripple */}
+            <group position={[0, 1.6, -8]} onClick={handleTestRipple}>
+                <InstancedSphere ref={sphereRef} />
+            </group>
+
+            {/* OrbitControls: right-click to rotate, scroll to zoom */}
+            <OrbitControls
+                enablePan={false}
+                mouseButtons={{ LEFT: null, MIDDLE: 2, RIGHT: 0 }}
+            />
+        </>
+    );
+}
 
 export default function Experience() {
     return (
@@ -37,8 +127,8 @@ export default function Experience() {
                     ← Vissza a Menübe
                 </a>
 
-                {/* VR Toggle Button (Bottom Right or elsewhere custom) */}
-                <button onClick={() => store.enterVR()} style={{
+                {/* VR Toggle Button */}
+                <button onClick={() => setTimeout(() => store.enterVR(), 100)} style={{
                     position: 'absolute',
                     bottom: '20px',
                     right: '20px',
@@ -58,19 +148,7 @@ export default function Experience() {
 
             <Canvas shadows camera={{ position: [0, 1.6, 0] }}>
                 <XR store={store}>
-                    <ambientLight intensity={0.5} />
-                    <directionalLight position={[-5, 5, 5]} castShadow intensity={1} shadow-mapSize={[1024, 1024]} />
-
-                    {/* Background */}
-                    <Background />
-
-                    {/* Main Visual */}
-                    {/* Positioned at z=-5 to match previous scene */}
-                    <group position={[0, 1.6, -5]}>
-                        <InstancedSphere />
-                    </group>
-
-                    <OrbitControls />
+                    <Scene />
                 </XR>
             </Canvas>
         </>

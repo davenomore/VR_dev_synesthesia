@@ -7,7 +7,7 @@
  */
 AFRAME.registerSystem('audio-analyzer', {
     schema: {
-        fftSize: { default: 64 },  // 32 bins (fftSize/2)
+        fftSize: { default: 1024 },  // 512 bins (fftSize/2) -> ~43Hz per bin
         smoothing: { default: 0.8 }
     },
 
@@ -21,10 +21,18 @@ AFRAME.registerSystem('audio-analyzer', {
 
         // Frequency band values (normalized 0-1)
         this.bands = {
-            bass: 0,    // 20-100Hz (bins 0-2)
-            mid: 0,     // 500-2000Hz (bins 8-16)
-            high: 0     // 5k-15kHz (bins 20-30)
+            bass: 0,    // 0-170Hz
+            mid: 0,     // 300-2500Hz
+            high: 0     // 4000Hz+
         };
+
+        this.volume = 0; // Global average level
+
+        // Beat Detection State
+        this.isBeat = false;
+        this.beatThreshold = 0;
+        this.beatHold = false;
+        this.beatTimer = 0;
 
         // Smoothed values for visual transitions
         this.smoothBands = { bass: 0, mid: 0, high: 0 };
@@ -151,36 +159,75 @@ AFRAME.registerSystem('audio-analyzer', {
         this.analyser.getByteFrequencyData(this.frequencyData);
 
         // Calculate band averages
-        // FFT bins map to frequencies: bin * sampleRate / fftSize
-        // With 44100Hz and fftSize=64: each bin ≈ 689Hz
-        // We'll approximate the ranges
+        // Sample Rate ~44100Hz / 1024 = ~43Hz per bin
 
         const bins = this.frequencyData;
-        const numBins = bins.length; // 32
 
-        // Sub-bass (bins 0-1, ~0-1400Hz, we focus on first 2)
+        // 1. BASS (Deep sub & kick)
+        // Range: ~0 - 170Hz -> Bins 0-4
         let bassSum = 0;
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 4; i++) {
             bassSum += bins[i] || 0;
         }
-        this.bands.bass = (bassSum / 2) / 255;
+        this.bands.bass = (bassSum / 4) / 255;
 
-        // Mid range (bins 4-12, ~2800-8300Hz)
+        // 2. MID (Vocals & instruments)
+        // Range: ~300Hz - 2500Hz -> Bins 7 - 58
         let midSum = 0;
-        for (let i = 4; i < 12; i++) {
+        let midCount = 0;
+        for (let i = 7; i < 58; i++) {
             midSum += bins[i] || 0;
+            midCount++;
         }
-        this.bands.mid = (midSum / 8) / 255;
+        this.bands.mid = (midSum / midCount) / 255;
 
-        // High end (bins 16-28, ~11k-19kHz)
+        // 3. HIGH (Hi-hats, air)
+        // Range: ~4000Hz+ -> Bins 90+
         let highSum = 0;
-        for (let i = 16; i < Math.min(28, numBins); i++) {
+        let highCount = 0;
+        for (let i = 90; i < this.analyser.frequencyBinCount; i++) {
             highSum += bins[i] || 0;
+            highCount++;
         }
-        this.bands.high = (highSum / 12) / 255;
+        this.bands.high = (highSum / highCount) / 255;
+
+        // Boost highs artificially as they are often quiet
+        this.bands.high = Math.min(this.bands.high * 3.0, 1.0);
+
+        // 4. GLOBAL VOLUME (Average Level)
+        this.volume = (this.bands.bass + this.bands.mid + this.bands.high) / 3.0;
+
+        // 5. BEAT DETECTION (Simple Peak Detection)
+        // Detects sudden spikes in Bass energy relative to a rolling average
+        const instantEnergy = this.bands.bass;
+
+        // Update local energy history (simple moving average for threshold)
+        this.beatThreshold = this.beatThreshold * 0.95 + instantEnergy * 0.05;
+
+        // If instant energy is significantly higher than average -> BEAT!
+        if (instantEnergy > this.beatThreshold * 1.3 && instantEnergy > 0.3) {
+            if (!this.beatHold) {
+                this.isBeat = true;
+                this.beatHold = true;
+                // Emit event for other components to listen to
+                this.el.emit('audio-beat', { level: instantEnergy });
+            }
+        } else {
+            this.isBeat = false;
+        }
+
+        // Release beat hold after a short delay (prevent rapid-fire triggering)
+        if (this.beatHold) {
+            this.beatTimer += delta;
+            if (this.beatTimer > 100) { // 100ms debounce
+                this.beatHold = false;
+                this.beatTimer = 0;
+            }
+        }
 
         // Smooth the values
-        const smoothFactor = 0.15;
+        // 0.15 was too slow/smooth. 0.6 is snappier for beat detection.
+        const smoothFactor = 0.6;
         this.smoothBands.bass += (this.bands.bass - this.smoothBands.bass) * smoothFactor;
         this.smoothBands.mid += (this.bands.mid - this.smoothBands.mid) * smoothFactor;
         this.smoothBands.high += (this.bands.high - this.smoothBands.high) * smoothFactor;

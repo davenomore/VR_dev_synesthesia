@@ -345,45 +345,58 @@ const RENDER_VERTEX_SHADER = `
     uniform float audioHigh;
     varying vec3 vColor;
 
-    void main() {
-        vec3 pos = texture2D(positionTexture, position.xy).rgb; 
+void main() {
+        vec3 pos = texture2D(positionTexture, position.xy).rgb;
+
+        // Audio-reactive color palette (HDR for bloom)
+        // MOMOCHROME PALETTE: Shades of Cyan/Electric Blue
+        vec3 cBass = vec3(0.0, 0.1, 0.8);   // Deep Blue (Bass)
+        vec3 cMid  = vec3(0.0, 0.8, 1.5);   // Bright Cyan (Mids)
+        vec3 cHigh = vec3(0.8, 0.9, 1.2);   // Pale/White Blue (Highs)
         
-        // Audio-reactive color palette (HDR values for bloom effect)
-        // Bass = Deep Blue/Purple, Mid = Cyan/Green, High = White/Pink
-        vec3 bassColor = vec3(0.3, 0.1, 1.2);   // HDR Blue
-        vec3 midColor = vec3(0.0, 1.5, 1.0);    // HDR Cyan
-        vec3 highColor = vec3(1.5, 0.8, 1.5);   // HDR Pink/White
+        vec3 finalColor = vec3(0.0, 0.0, 0.0);
+
+        // VISUAL VARIATION: Split particles into "bands" based on their ID (position.x)
+        // This prevents the "whole cloud changes color at once" effect.
         
-        // Blend based on audio bands
-        float total = audioBass + audioMid + audioHigh + 0.001;
-        vColor = (bassColor * audioBass + midColor * audioMid + highColor * audioHigh) / total;
-        
-        // Add base brightness when quiet + overall boost
-        vec3 baseColor = vec3(0.0, 1.2, 1.5); // Bright cyan base
-        vColor = mix(baseColor, vColor, min(total * 2.0, 1.0));
-        
-        // BLOOM BOOST: Amplify for glow (additive blending does the rest)
-        vColor *= 1.5;
-        
+        float pID = position.x; // 0.0 to 1.0 (Texture UV coordinate acts as ID)
+
+    // Soft mixing between zones to avoid harsh lines
+    if (pID < 0.35) {
+        // BASS ZONE (Inner/First group)
+        finalColor = cBass * audioBass * 4.0; 
+        finalColor += vec3(0.0, 0.02, 0.1); // Dark blue base
+    } else if (pID < 0.7) {
+        // MID ZONE (Middle group)
+        finalColor = cMid * audioMid * 2.5; 
+        finalColor += vec3(0.0, 0.1, 0.1); // Teal base
+    } else {
+        // HIGH ZONE (Outer/Last group)
+        finalColor = cHigh * audioHigh * 5.0; 
+        finalColor += vec3(0.05, 0.1, 0.1); // Brighter base
+    }
+
+    vColor = finalColor;
+
         vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
         float size = 5.0 / -mvPosition.z; // Slightly larger particles
-        gl_PointSize = clamp(size, 1.0, 35.0);
-        gl_Position = projectionMatrix * mvPosition;
-    }
+    gl_PointSize = clamp(size, 1.0, 35.0);
+    gl_Position = projectionMatrix * mvPosition;
+}
 `;
 
 const RENDER_FRAGMENT_SHADER = `
     varying vec3 vColor;
-    void main() {
+void main() {
         // Soft circle with glow falloff
         float dist = length(gl_PointCoord - vec2(0.5));
-        if (dist > 0.5) discard;
-        
+    if (dist > 0.5) discard;
+
         // Soft edge for bloom effect
         float alpha = 1.0 - smoothstep(0.3, 0.5, dist);
-        
-        gl_FragColor = vec4(vColor * alpha, alpha);
-    }
+
+    gl_FragColor = vec4(vColor * alpha, alpha);
+}
 `;
 
 
@@ -396,7 +409,7 @@ AFRAME.registerComponent('gpu-particles', {
         this.size = this.data.count; // Texture width
         this.particleCount = this.size * this.size;
 
-        console.log(`[GPU Particles] Init: ${this.particleCount} particles (Thick Shell)`);
+        console.log(`[GPU Particles]Init: ${this.particleCount} particles(Thick Shell)`);
 
         // 1. Setup GPGPU Scenes (Off-screen rendering)
         // We need two scenes/cameras or just raw FBOs?
@@ -500,7 +513,7 @@ AFRAME.registerComponent('gpu-particles', {
                 leftHandState: { value: 0 },
                 rightHandState: { value: 0 }
             },
-            vertexShader: `void main() { gl_Position = vec4( position, 1.0 ); }`, // Full screen quad
+            vertexShader: `void main() { gl_Position = vec4(position, 1.0); } `, // Full screen quad
             fragmentShader: SIMULATION_FRAGMENT_SHADER
         });
 
@@ -620,6 +633,11 @@ AFRAME.registerComponent('gpu-particles', {
             uniforms.rightHandPos.value.copy(handSys.rightPos);
             uniforms.leftIndexPos.value.copy(handSys.leftIndexTip);
             uniforms.rightIndexPos.value.copy(handSys.rightIndexTip);
+            
+            // Update direction for beam
+            if (handSys.rightIndexDir) {
+                uniforms.rightIndexDir.value.copy(handSys.rightIndexDir);
+            }
 
             // --- LEFT HAND STATE ---
             // Priority: Fist (Freeze) > Point (Singularity) > Pinch (Vortex) > Palm Up (Levitate)
@@ -714,6 +732,25 @@ AFRAME.registerComponent('gpu-particles', {
             }
         } else {
             uniforms.audioLevel.value = 0;
+        }
+
+        // BEAT REACTIVITY (Pulse on beat)
+        if (audioSys && audioSys.isBeat) {
+            // Create a momentary flash/expansion force
+            uniforms.resetFactor.value = 0.1; // Slight ripple
+            // We could add a specific 'beatFlash' uniform if desired
+        }
+
+        // DEBUG: Check values every ~1 sec (assuming 60fps)
+        if (Math.random() < 0.01) {
+            const bands = audioSys ? audioSys.getBands() : null;
+            console.log('[GPU Debug] Audio:',
+                'Bass:', bands ? bands.bass.toFixed(2) : 'N/A',
+                'Mid:', bands ? bands.mid.toFixed(2) : 'N/A',
+                'High:', bands ? bands.high.toFixed(2) : 'N/A',
+                'Vol:', audioSys ? audioSys.volume.toFixed(2) : 'N/A',
+                'Beat:', audioSys ? audioSys.isBeat : false
+            );
         }
 
         // 1. SIMULATION STEP
