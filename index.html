@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Synesthesia VR - Menu</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Optional for icons -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #667eea, #00ff88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 250px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #00ff88;
+        }
+
+        .icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .desc {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .instructions {
+            font-size: 0.85rem;
+            color: #00ff88;
+            margin-top: 10px;
+            font-style: italic;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 10px;
+        }
+
+        /* Language Switcher */
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: #fff;
+        }
+
+        /* --- AUDIO UI STYLES (Replicated) --- */
+        .audio-ui {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 90vw;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .audio-ui .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .audio-ui .section-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .audio-ui button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-ui button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .audio-ui button:disabled {
+            opacity: 0.5;
+            cursor: wait;
+        }
+
+        .audio-ui button.demo-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        .audio-ui .file-label {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .audio-ui .file-label:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .audio-ui input[type="file"] {
+            display: none;
+        }
+
+        .audio-ui .url-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            width: 200px;
+            outline: none;
+        }
+
+        .audio-ui .status {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* Fake Visualizer */
+        .visualizer {
+            display: flex;
+            gap: 3px;
+            align-items: flex-end;
+            height: 30px;
+        }
+
+        .bar {
+            width: 4px;
+            background: linear-gradient(to top, #00ff88, #667eea);
+            border-radius: 2px;
+            height: 5px;
+            animation: bounce 0s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                height: 5px;
+            }
+
+            50% {
+                height: 25px;
+            }
+        }
+
+        .playing .bar {
+            animation-duration: 0.5s;
+        }
+
+        .playing .bar:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .playing .bar:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .playing .bar:nth-child(4) {
+            animation-delay: 0.15s;
+        }
+
+        .playing .bar:nth-child(5) {
+            animation-delay: 0.05s;
+        }
+    </style>
+  <script type="module" crossorigin src="/VR_dev_synesthesia/assets/index-YTiBEmLX.js"></script>
+</head>
+
+<body>
+
+    <!-- Language Controls -->
+    <div class="lang-switch">
+        <button class="lang-btn" onclick="setLanguage('hu')" id="btn-hu">HU</button>
+        <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+    </div>
+
+    <h1 data-lang="appTitle">✨ Synesthetic Pulse</h1>
+
+    <!-- AUDIO UI -->
+    <div class="audio-ui">
+        <!-- Demo Tracks -->
+        <span class="section-label" data-lang="audioQuickStart">Quick Start - Demo Tracks</span>
+        <div class="row">
+            <button class="demo-btn" onclick="loadDemo('/audio/demo-electronic.mp3', '🎵 Electronic')">🎵
+                Electronic</button>
+            <button class="demo-btn" onclick="loadDemo('/audio/demo-ambient.mp3', '🌊 Ambient')">🌊 Ambient</button>
+            <button class="demo-btn" onclick="loadDemo('/audio/demo-rock.mp3', '🎸 Rock')">🎸 Rock</button>
+            <button class="demo-btn" onclick="loadDemo('/audio/demo-piano.mp3', '🎹 Piano')">🎹 Piano</button>
+        </div>
+
+        <!-- Divider -->
+        <span class="section-label" data-lang="audioCustom">Or Use Your Own</span>
+
+        <!-- Inputs -->
+        <div class="row">
+            <label class="file-label" for="music-upload">
+                <span data-lang="audioFile">📁 File</span>
+            </label>
+            <input type="file" id="music-upload" accept="audio/*">
+
+            <input type="text" class="url-input" id="url-input" placeholder="Paste audio URL..."
+                data-lang-placeholder="audioUrlPlaceholder">
+            <button onclick="loadFromUrlInput()" style="padding: 10px 15px; font-size:12px;"
+                data-lang="audioLoadUrl">Load URL</button>
+        </div>
+
+        <!-- Playback / Status -->
+        <div class="row">
+            <button id="play-preview-btn" onclick="togglePreview()" disabled>
+                <span id="play-text" data-lang="audioPlay">▶ Play Preview</span>
+            </button>
+            <div class="visualizer" id="visualizer">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+
+        <span class="status" id="music-status" data-lang="audioStatusSelect">Select a track to start</span>
+    </div>
+
+    <div class="container">
+        <!-- LINK TO PARTICLE MODE -->
+        <a href="synesthetic-particles.html" class="card">
+            <span class="icon">🌌</span>
+            <div class="title" data-lang="particleTitle">Particle Storm</div>
+            <div class="desc" data-lang="particleDesc">30K részecske, gesztus vezérlés</div>
+            <div class="instructions" data-lang="particleInstr">👋 Húzd a kezed a részecskeörvény irányításához.</div>
+        </a>
+
+        <!-- LINK TO SPHERE MODE -->
+        <a href="react-sphere.html?v=new" class="card">
+            <span class="icon">🔮</span>
+            <div class="title" data-lang="sphereTitle">Pulse Orb</div>
+            <div class="desc" data-lang="sphereDesc">Organikus gömb, mágneses kéz</div>
+            <div class="instructions" data-lang="sphereInstr">🧲 Nyújtsd a kezed a gömb vonzásához.</div>
+        </a>
+
+        <!-- LINK TO DIMENSION WARP MODE -->
+        <a href="dimension-warp.html" class="card">
+            <span class="icon">🌀</span>
+            <div class="title" data-lang="warpTitle">Dimension Warp</div>
+            <div class="desc" data-lang="warpDesc">Audio-reaktív alagút & Bloom</div>
+            <div class="instructions" data-lang="warpInstr">🎧 Csak figyeld a ritmust és lazíts.</div>
+        </a>
+    </div>
+
+
+    <script>
+        // Expose to window for the module to use
+        window.translations = {
+            hu: {
+                appTitle: "Szineztézia VR",
+                audioQuickStart: "Gyors Indítás - Demó Zenék",
+                audioCustom: "Vagy Használd a Sajátod",
+                audioFile: "📁 Fájl",
+                audioLoadUrl: "URL Betöltés",
+                audioUrlPlaceholder: "Illessz be egy linket...",
+                audioPlay: "▶ Előnézet",
+                audioPause: "⏸ Szünet",
+                audioStatusSelect: "Válassz egy zenét a kezdéshez",
+                audioStatusLoading: "Betöltés...",
+                audioStatusError: "Hiba a betöltéskor",
+
+                particleTitle: "Részecske Vihar",
+                particleDesc: "30K részecske, gesztus vezérlés",
+                particleInstr: "👋 Húzd a kezed a részecskeörvény irányításához.",
+                sphereTitle: "Pulzáló Gömb",
+                sphereDesc: "Organikus gömb, mágneses kéz",
+                sphereInstr: "🧲 Nyújtsd a kezed a gömb vonzásához.",
+                warpTitle: "Dimenzió Ugrás",
+                warpDesc: "Audio-reaktív alagút & Bloom",
+                warpInstr: "🎧 Csak figyeld a ritmust és lazíts."
+            },
+            en: {
+                appTitle: "Synesthesia VR",
+                audioQuickStart: "Quick Start - Demo Tracks",
+                audioCustom: "Or Use Your Own",
+                audioFile: "📁 File",
+                audioLoadUrl: "Load URL",
+                audioUrlPlaceholder: "Paste audio URL...",
+                audioPlay: "▶ Play Preview",
+                audioPause: "⏸ Pause Preview",
+                audioStatusSelect: "Select a track to start",
+                audioStatusLoading: "Loading...",
+                audioStatusError: "Error loading track",
+
+                particleTitle: "Particle Storm",
+                particleDesc: "30K particles, gesture control",
+                particleInstr: "👋 Wave hands to control the particles.",
+                sphereTitle: "Pulse Orb",
+                sphereDesc: "Organic sphere, magnetic hand",
+                sphereInstr: "🧲 Reach out to attract the sphere.",
+                warpTitle: "Dimension Warp",
+                warpDesc: "Audio-reactive tunnel & Bloom",
+                warpInstr: "🎧 Just watch the rhythm and relax."
+            }
+        };
+
+        function setLanguage(lang) {
+            localStorage.setItem('preferredLanguage', lang);
+
+            // Text Content
+            const elements = document.querySelectorAll('[data-lang]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (window.translations[lang][key]) {
+                    el.textContent = window.translations[lang][key];
+                }
+            });
+
+            // Placeholders
+            const placeholders = document.querySelectorAll('[data-lang-placeholder]');
+            placeholders.forEach(el => {
+                const key = el.getAttribute('data-lang-placeholder');
+                if (window.translations[lang][key]) {
+                    el.placeholder = window.translations[lang][key];
+                }
+            });
+
+            // Buttons State
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+
+            document.title = window.translations[lang]['appTitle'] + " - Menu";
+        }
+
+        // Init
+        const savedLang = localStorage.getItem('preferredLanguage') || 'hu';
+        setTimeout(() => setLanguage(savedLang), 100);
+    </script>
+</body>
+
+</html>
