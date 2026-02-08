@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Synesthesia VR - Menu</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Optional for icons -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #667eea, #00ff88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 250px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #00ff88;
+        }
+
+        .icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .desc {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .instructions {
+            font-size: 0.85rem;
+            color: #00ff88;
+            margin-top: 10px;
+            font-style: italic;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 10px;
+        }
+
+        /* Language Switcher */
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: #fff;
+        }
+
+        /* --- AUDIO UI STYLES (Replicated) --- */
+        .audio-ui {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 90vw;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .audio-ui .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .audio-ui .section-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .audio-ui button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-ui button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .audio-ui button:disabled {
+            opacity: 0.5;
+            cursor: wait;
+        }
+
+        .audio-ui button.demo-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        .audio-ui .file-label {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .audio-ui .file-label:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .audio-ui input[type="file"] {
+            display: none;
+        }
+
+        .audio-ui .url-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            width: 200px;
+            outline: none;
+        }
+
+        .audio-ui .status {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* Fake Visualizer */
+        .visualizer {
+            display: flex;
+            gap: 3px;
+            align-items: flex-end;
+            height: 30px;
+        }
+
+        .bar {
+            width: 4px;
+            background: linear-gradient(to top, #00ff88, #667eea);
+            border-radius: 2px;
+            height: 5px;
+            animation: bounce 0s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                height: 5px;
+            }
+
+            50% {
+                height: 25px;
+            }
+        }
+
+        .playing .bar {
+            animation-duration: 0.5s;
+        }
+
+        .playing .bar:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .playing .bar:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .playing .bar:nth-child(4) {
+            animation-delay: 0.15s;
+        }
+
+        .playing .bar:nth-child(5) {
+            animation-delay: 0.05s;
+        }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(26, 0, 51, 0.95) 0%, rgba(10, 0, 21, 0.95) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.2);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 2rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #00ff88;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #667eea, #00ff88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .modal-desc {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .gestures-title {
+            font-size: 1.2rem;
+            color: #00ff88;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .gesture-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .gesture-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .gesture-text {
+            flex: 1;
+        }
+
+        .gesture-name {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .gesture-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        /* Info Button on Cards */
+        .card {
+            position: relative;
+        }
+
+        .info-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(0, 255, 136, 0.2) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        .info-btn:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(0, 255, 136, 0.4) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+        }
+
+        .info-btn .icon {
+            font-size: 0.9rem;
+        }
+    </style>
+  <script type="module" crossorigin src="/VR_dev_synesthesia/assets/main-BomsKDBp.js"></script>
+  <link rel="modulepreload" crossorigin href="/VR_dev_synesthesia/assets/music-store-Da5ddBIB.js">
+</head>
+
+<body>
+
+    <!-- Language Controls -->
+    <div class="lang-switch">
+        <button class="lang-btn" onclick="setLanguage('hu')" id="btn-hu">HU</button>
+        <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+    </div>
+
+    <h1 data-lang="appTitle">✨ Synesthetic Pulse</h1>
+
+    <!-- AUDIO UI -->
+    <div class="audio-ui">
+        <!-- Demo Tracks -->
+        <span class="section-label" data-lang="audioQuickStart">Quick Start - Demo Tracks</span>
+        <div class="row">
+            <button class="demo-btn" onclick="loadDemo('audio/demo-electronic.mp3', '🎵 Electronic')">🎵
+                Electronic</button>
+            <button class="demo-btn" onclick="loadDemo('audio/demo-ambient.mp3', '🌊 Ambient')">🌊 Ambient</button>
+            <button class="demo-btn" onclick="loadDemo('audio/demo-rock.mp3', '🎸 Rock')">🎸 Rock</button>
+            <button class="demo-btn" onclick="loadDemo('audio/demo-piano.mp3', '🎹 Piano')">🎹 Piano</button>
+        </div>
+
+        <!-- Divider -->
+        <span class="section-label" data-lang="audioCustom">Or Use Your Own</span>
+
+        <!-- Inputs -->
+        <div class="row">
+            <label class="file-label" for="music-upload">
+                <span data-lang="audioFile">📁 File</span>
+            </label>
+            <input type="file" id="music-upload" accept="audio/*">
+
+            <input type="text" class="url-input" id="url-input" placeholder="Paste audio URL..."
+                data-lang-placeholder="audioUrlPlaceholder">
+            <button onclick="loadFromUrlInput()" style="padding: 10px 15px; font-size:12px;"
+                data-lang="audioLoadUrl">Load URL</button>
+        </div>
+
+        <!-- Playback / Status -->
+        <div class="row">
+            <button id="play-preview-btn" onclick="togglePreview()" disabled>
+                <span id="play-text" data-lang="audioPlay">▶ Play Preview</span>
+            </button>
+            <div class="visualizer" id="visualizer">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+
+        <span class="status" id="music-status" data-lang="audioStatusSelect">Select a track to start</span>
+    </div>
+
+    <div class="container">
+        <!-- LINK TO PARTICLE MODE -->
+        <a href="synesthetic-particles.html" class="card">
+            <button class="info-btn" onclick="event.preventDefault(); event.stopPropagation(); openModal('particle');">
+                <span class="icon">📖</span> <span data-lang="tutorialBtn">Útmutató</span>
+            </button>
+            <span class="icon">🌌</span>
+            <div class="title" data-lang="particleTitle">Particle Storm</div>
+            <div class="desc" data-lang="particleDesc">30K részecske, gesztus vezérlés</div>
+        </a>
+
+        <!-- LINK TO SPHERE MODE -->
+        <a href="react-sphere.html?v=new" class="card">
+            <button class="info-btn" onclick="event.preventDefault(); event.stopPropagation(); openModal('sphere');">
+                <span class="icon">📖</span> <span data-lang="tutorialBtn">Útmutató</span>
+            </button>
+            <span class="icon">🔮</span>
+            <div class="title" data-lang="sphereTitle">Pulse Orb</div>
+            <div class="desc" data-lang="sphereDesc">Organikus gömb, mágneses kéz</div>
+        </a>
+
+        <!-- LINK TO DIMENSION WARP MODE -->
+        <a href="dimension-warp.html" class="card">
+            <button class="info-btn" onclick="event.preventDefault(); event.stopPropagation(); openModal('warp');">
+                <span class="icon">📖</span> <span data-lang="tutorialBtn">Útmutató</span>
+            </button>
+            <span class="icon">🌀</span>
+            <div class="title" data-lang="warpTitle">Dimension Warp</div>
+            <div class="desc" data-lang="warpDesc">Audio-reaktív alagút & Bloom</div>
+        </a>
+    </div>
+
+    <!-- Modal Container -->
+    <div class="modal-backdrop" id="modal" onclick="closeModalOnBackdrop(event)">
+        <div class="modal-content" onclick="event.stopPropagation();">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+
+    <script>
+        // Expose to window for the module to use
+        window.translations = {
+            hu: {
+                appTitle: "Szineztézia VR",
+                audioQuickStart: "Gyors Indítás - Demó Zenék",
+                audioCustom: "Vagy Használd a Sajátod",
+                audioFile: "📁 Fájl",
+                audioLoadUrl: "URL Betöltés",
+                audioUrlPlaceholder: "Illessz be egy linket...",
+                audioPlay: "▶ Előnézet",
+                audioPause: "⏸ Szünet",
+                audioStatusSelect: "Válassz egy zenét a kezdéshez",
+                audioStatusLoading: "Betöltés...",
+                audioStatusError: "Hiba a betöltéskor",
+
+                tutorialBtn: "Útmutató",
+                particleTitle: "Részecske Vihar",
+                particleDesc: "30K részecske, gesztus vezérlés",
+                sphereTitle: "Pulzáló Gömb",
+                sphereDesc: "Organikus gömb, mágneses kéz",
+                warpTitle: "Dimenzió Ugrás",
+                warpDesc: "Audio-reaktív alagút & Bloom"
+            },
+            en: {
+                appTitle: "Synesthesia VR",
+                audioQuickStart: "Quick Start - Demo Tracks",
+                audioCustom: "Or Use Your Own",
+                audioFile: "📁 File",
+                audioLoadUrl: "Load URL",
+                audioUrlPlaceholder: "Paste audio URL...",
+                audioPlay: "▶ Play Preview",
+                audioPause: "⏸ Pause Preview",
+                audioStatusSelect: "Select a track to start",
+                audioStatusLoading: "Loading...",
+                audioStatusError: "Error loading track",
+
+                tutorialBtn: "Tutorial",
+                particleTitle: "Particle Storm",
+                particleDesc: "30K particles, gesture control",
+                sphereTitle: "Pulse Orb",
+                sphereDesc: "Organic sphere, magnetic hand",
+                warpTitle: "Dimension Warp",
+                warpDesc: "Audio-reactive tunnel & Bloom"
+            }
+        };
+
+        function setLanguage(lang) {
+            localStorage.setItem('preferredLanguage', lang);
+
+            // Text Content
+            const elements = document.querySelectorAll('[data-lang]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (window.translations[lang][key]) {
+                    el.textContent = window.translations[lang][key];
+                }
+            });
+
+            // Placeholders
+            const placeholders = document.querySelectorAll('[data-lang-placeholder]');
+            placeholders.forEach(el => {
+                const key = el.getAttribute('data-lang-placeholder');
+                if (window.translations[lang][key]) {
+                    el.placeholder = window.translations[lang][key];
+                }
+            });
+
+            // Buttons State
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+
+            document.title = window.translations[lang]['appTitle'] + " - Menu";
+        }
+
+        // Init
+        const savedLang = localStorage.getItem('preferredLanguage') || 'hu';
+        setTimeout(() => setLanguage(savedLang), 100);
+
+        // --- MODAL FUNCTIONS ---
+        const modeContent = {
+            particle: {
+                hu: {
+                    title: "Részecske Vihar",
+                    desc: "30,000 interaktív részecske amely kezed mozgására reagál. A részecskék örvénylő mintákat alkotnak a zenével szinkronban.",
+                    gestures: [
+                        { icon: "👋", name: "Kéz Húzás", desc: "Húzd végig a kezed a térben hogy irányítsd a részecske örvényt." },
+                        { icon: "✋", name: "Szeparálás", desc: "Két kézzel húzz szét hogy szétoszlasd a részecskéket." },
+                        { icon: "🤏", name: "Csippentés", desc: "Csippentsd össze az ujjaidat hogy egy pontba gyűjtsd a részecskéket." }
+                    ]
+                },
+                en: {
+                    title: "Particle Storm",
+                    desc: "30,000 interactive particles that respond to your hand movements. Particles form swirling patterns synchronized with the music.",
+                    gestures: [
+                        { icon: "👋", name: "Hand Wave", desc: "Wave your hand through space to guide the particle vortex." },
+                        { icon: "✋", name: "Separate", desc: "Pull apart with both hands to disperse the particles." },
+                        { icon: "🤏", name: "Pinch", desc: "Pinch your fingers together to collect particles into a single point." }
+                    ]
+                }
+            },
+            sphere: {
+                hu: {
+                    title: "Pulzáló Gömb",
+                    desc: "Organikus gömb amely mágneses vonzást érez a kezed felé. Gesztusokkal alakítsd át a formáját és indíts el különleges effekteket.",
+                    gestures: [
+                        { icon: "🧲", name: "Mágneses Vonzás", desc: "Nyújtsd ki a kezed hogy vonzd magadhoz a gömböt. Minél közelebb vagy, annál erősebb a hatás." },
+                        { icon: "🤏", name: "Gravitációs Örvény", desc: "Csippentsd össze jobb kezed ujjait hogy csavaró gravitációs mezőt hozz létre." },
+                        { icon: "🙌", name: "Szupernóva", desc: "Tárd szét két kezed egyszerre hogy robbanásszerű effektet indíts a gömbön." }
+                    ]
+                },
+                en: {
+                    title: "Pulse Orb",
+                    desc: "An organic sphere that feels magnetic attraction towards your hands. Transform its shape and trigger special effects with gestures.",
+                    gestures: [
+                        { icon: "🧲", name: "Magnetic Attraction", desc: "Reach out your hand to attract the sphere towards you. The closer you are, the stronger the effect." },
+                        { icon: "🤏", name: "Gravity Swirl", desc: "Pinch your right hand fingers together to create a twisting gravitational field." },
+                        { icon: "🙌", name: "Supernova", desc: "Spread both hands apart simultaneously to trigger an explosive effect on the sphere." }
+                    ]
+                },
+            },
+            warp: {
+                hu: {
+                    title: "Dimenzió Ugrás",
+                    desc: "Audio-reaktív tunnel és Bloom effekt. Ez a mód passzív: csak ülj le, élvezd a zenét és hagyd hogy az audió vezesse a vizualizációt.",
+                    gestures: [
+                        { icon: "🎧", name: "Passzív Mód", desc: "Nincs aktív gesztus vezérlés. Lazíts és hagyd hogy a zene irányítson mindent." },
+                        { icon: "🌀", name: "Alagút", desc: "Végtelen audio-reaktív alagút ami pulzál a ritmusra." },
+                        { icon: "✨", name: "Bloom Effekt", desc: "Fénygyűrűk és ragyogó effektek kísérik a dallamot." }
+                    ]
+                },
+                en: {
+                    title: "Dimension Warp",
+                    desc: "Audio-reactive tunnel with Bloom effect. This mode is passive: just sit back, enjoy the music and let the audio drive the visualization.",
+                    gestures: [
+                        { icon: "🎧", name: "Passive Mode", desc: "No active gesture control. Relax and let the music control everything." },
+                        { icon: "🌀", name: "Tunnel", desc: "Infinite audio-reactive tunnel that pulses with the rhythm." },
+                        { icon: "✨", name: "Bloom Effect", desc: "Light rings and glowing effects accompany the melody." }
+                    ]
+                }
+            }
+        };
+
+        window.openModal = function (mode) {
+            const lang = localStorage.getItem('preferredLanguage') || 'hu';
+            const content = modeContent[mode][lang];
+
+            let gesturesHtml = content.gestures.map(g => `
+                <div class="gesture-item">
+                    <div class="gesture-icon">${g.icon}</div>
+                    <div class="gesture-text">
+                        <div class="gesture-name">${g.name}</div>
+                        <div class="gesture-desc">${g.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('modal-body').innerHTML = `
+                <div class="modal-title">${content.title}</div>
+                <div class="modal-desc">${content.desc}</div>
+                <div class="gestures-title">${lang === 'hu' ? 'Gesztusok:' : 'Gestures:'}</div>
+                ${gesturesHtml}
+            `;
+
+            document.getElementById('modal').classList.add('active');
+        };
+
+        window.closeModal = function () {
+            document.getElementById('modal').classList.remove('active');
+        };
+
+        window.closeModalOnBackdrop = function (event) {
+            if (event.target.id === 'modal') {
+                closeModal();
+            }
+        };
+
+        // ESC key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

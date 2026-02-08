@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dimension Warp - Synesthetic Pulse</title>
+    <!-- Core A-Frame -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+    <!-- Physics Extras -->
+    <!-- Removed aframe-extras to avoid conflict with super-hands or duplicate physics -->
+    <!-- <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script> -->
+
+    <!-- Environment Component -->
+    <script
+        src="https://unpkg.com/aframe-environment-component@1.3.3/dist/aframe-environment-component.min.js"></script>
+
+    <!-- Interaction (Super Hands & Event Set) -->
+    <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/super-hands@3.0.4/dist/super-hands.min.js"></script>
+
+    <!-- Project Logic -->
+
+    <style>
+        body {
+            background-color: #05010a;
+            color: #fff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+        }
+
+        button:focus,
+        input:focus {
+            outline: none;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 1.2rem;
+            z-index: 10000;
+        }
+
+        .back-btn:hover {
+            color: #fff;
+        }
+    </style>
+  <script type="module" crossorigin src="/VR_dev_synesthesia/assets/warp-Bzfezinc.js"></script>
+  <link rel="modulepreload" crossorigin href="/VR_dev_synesthesia/assets/music-store-Da5ddBIB.js">
+  <link rel="modulepreload" crossorigin href="/VR_dev_synesthesia/assets/auto-music-CU4BUEO4.js">
+</head>
+
+<body>
+    <a href="index.html" class="back-btn">← Back to Menu</a>
+
+    <a-scene audio-analyzer="fftSize: 1024; smoothing: 0.8" auto-music
+        renderer="foveationLevel: 0; highRefreshRate: true; antialias: true; colorManagement: true"
+        webxr="referenceSpaceType: local; requiredFeatures: hand-tracking; optionalFeatures: hit-test;"
+        background="color: #000000">
+
+        <!-- Modules -->
+
+        <!-- Player -->
+        <a-entity id="rig" position="0 0 0">
+            <a-camera position="0 1.6 0" look-controls>
+                <!-- HUD or Cursor if needed -->
+            </a-camera>
+
+            <!-- Hand Interaction with Physics & Gestures -->
+            <a-entity id="leftHand" hand-tracking-controls="hand: left; modelStyle: mesh"
+                super-hands="grabStartButtons: pinchstarted; grabEndButtons: pinchended" hand-attractor="hand: left">
+            </a-entity>
+            <a-entity id="rightHand" hand-tracking-controls="hand: right; modelStyle: mesh"
+                super-hands="grabStartButtons: pinchstarted; grabEndButtons: pinchended" hand-attractor="hand: right">
+            </a-entity>
+        </a-entity>
+
+        <!-- The Dimension Warp Experience -->
+        <a-entity dimension-warp="speed: 5; count: 1000"></a-entity>
+
+
+
+        <!-- Lighting -->
+        <!-- Lighting (Lusion Style) -->
+        <a-light type="ambient" color="#404040" intensity="2"></a-light>
+        <a-light type="directional" position="0 10 5" intensity="3" color="#00ffff"></a-light>
+
+    </a-scene>
+</body>
+
+</html>

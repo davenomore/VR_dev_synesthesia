@@ -9,6 +9,16 @@ export default defineConfig({
         host: true, // Listen on all local IPs
         port: 3000, // Fixed port
         https: true, // Enable HTTPS
-        open: false // Don't open browser automatically on server start (we are on headset)
+        open: false // Don't open browser automatically on server start
+    },
+    build: {
+        rollupOptions: {
+            input: {
+                main: 'index.html',
+                sphere: 'react-sphere.html',
+                particles: 'synesthetic-particles.html',
+                warp: 'dimension-warp.html'
+            }
+        }
     }
 });

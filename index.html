@@ -5,7 +5,7 @@
     <title>Synesthesia VR - Menu</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Optional for icons -->
     <style>
         body {
@@ -266,6 +266,149 @@
         .playing .bar:nth-child(5) {
             animation-delay: 0.05s;
         }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(26, 0, 51, 0.95) 0%, rgba(10, 0, 21, 0.95) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.2);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 2rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #00ff88;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #667eea, #00ff88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .modal-desc {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .gestures-title {
+            font-size: 1.2rem;
+            color: #00ff88;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .gesture-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .gesture-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .gesture-text {
+            flex: 1;
+        }
+
+        .gesture-name {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .gesture-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        /* Info Button on Cards */
+        .card {
+            position: relative;
+        }
+
+        .info-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .info-btn .icon {
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 
@@ -284,11 +427,11 @@
         <!-- Demo Tracks -->
         <span class="section-label" data-lang="audioQuickStart">Quick Start - Demo Tracks</span>
         <div class="row">
-            <button class="demo-btn" onclick="loadDemo('/audio/demo-electronic.mp3', '🎵 Electronic')">🎵
+            <button class="demo-btn" onclick="loadDemo('audio/demo-electronic.mp3', '🎵 Electronic')">🎵
                 Electronic</button>
-            <button class="demo-btn" onclick="loadDemo('/audio/demo-ambient.mp3', '🌊 Ambient')">🌊 Ambient</button>
-            <button class="demo-btn" onclick="loadDemo('/audio/demo-rock.mp3', '🎸 Rock')">🎸 Rock</button>
-            <button class="demo-btn" onclick="loadDemo('/audio/demo-piano.mp3', '🎹 Piano')">🎹 Piano</button>
+            <button class="demo-btn" onclick="loadDemo('audio/demo-ambient.mp3', '🌊 Ambient')">🌊 Ambient</button>
+            <button class="demo-btn" onclick="loadDemo('audio/demo-rock.mp3', '🎸 Rock')">🎸 Rock</button>
+            <button class="demo-btn" onclick="loadDemo('audio/demo-piano.mp3', '🎹 Piano')">🎹 Piano</button>
         </div>
 
         <!-- Divider -->
@@ -327,27 +470,41 @@
     <div class="container">
         <!-- LINK TO PARTICLE MODE -->
         <a href="synesthetic-particles.html" class="card">
+            <button class="info-btn" onclick="event.preventDefault(); event.stopPropagation(); openModal('particle');">
+                <span class="icon">📖</span> <span data-lang="tutorialBtn">Útmutató</span>
+            </button>
             <span class="icon">🌌</span>
             <div class="title" data-lang="particleTitle">Particle Storm</div>
             <div class="desc" data-lang="particleDesc">30K részecske, gesztus vezérlés</div>
-            <div class="instructions" data-lang="particleInstr">👋 Húzd a kezed a részecskeörvény irányításához.</div>
         </a>
 
         <!-- LINK TO SPHERE MODE -->
         <a href="react-sphere.html?v=new" class="card">
+            <button class="info-btn" onclick="event.preventDefault(); event.stopPropagation(); openModal('sphere');">
+                <span class="icon">📖</span> <span data-lang="tutorialBtn">Útmutató</span>
+            </button>
             <span class="icon">🔮</span>
             <div class="title" data-lang="sphereTitle">Pulse Orb</div>
             <div class="desc" data-lang="sphereDesc">Organikus gömb, mágneses kéz</div>
-            <div class="instructions" data-lang="sphereInstr">🧲 Nyújtsd a kezed a gömb vonzásához.</div>
         </a>
 
         <!-- LINK TO DIMENSION WARP MODE -->
         <a href="dimension-warp.html" class="card">
+            <button class="info-btn" onclick="event.preventDefault(); event.stopPropagation(); openModal('warp');">
+                <span class="icon">📖</span> <span data-lang="tutorialBtn">Útmutató</span>
+            </button>
             <span class="icon">🌀</span>
             <div class="title" data-lang="warpTitle">Dimension Warp</div>
             <div class="desc" data-lang="warpDesc">Audio-reaktív alagút & Bloom</div>
-            <div class="instructions" data-lang="warpInstr">🎧 Csak figyeld a ritmust és lazíts.</div>
         </a>
+    </div>
+
+    <!-- Modal Container -->
+    <div class="modal-backdrop" id="modal" onclick="closeModalOnBackdrop(event)">
+        <div class="modal-content" onclick="event.stopPropagation();">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div id="modal-body"></div>
+        </div>
     </div>
 
     <script type="module">
@@ -482,15 +639,13 @@
                 audioStatusLoading: "Betöltés...",
                 audioStatusError: "Hiba a betöltéskor",
 
+                tutorialBtn: "Útmutató",
                 particleTitle: "Részecske Vihar",
                 particleDesc: "30K részecske, gesztus vezérlés",
-                particleInstr: "👋 Húzd a kezed a részecskeörvény irányításához.",
                 sphereTitle: "Pulzáló Gömb",
                 sphereDesc: "Organikus gömb, mágneses kéz",
-                sphereInstr: "🧲 Nyújtsd a kezed a gömb vonzásához.",
                 warpTitle: "Dimenzió Ugrás",
-                warpDesc: "Audio-reaktív alagút & Bloom",
-                warpInstr: "🎧 Csak figyeld a ritmust és lazíts."
+                warpDesc: "Audio-reaktív alagút & Bloom"
             },
             en: {
                 appTitle: "Synesthesia VR",
@@ -505,15 +660,13 @@
                 audioStatusLoading: "Loading...",
                 audioStatusError: "Error loading track",
 
+                tutorialBtn: "Tutorial",
                 particleTitle: "Particle Storm",
                 particleDesc: "30K particles, gesture control",
-                particleInstr: "👋 Wave hands to control the particles.",
                 sphereTitle: "Pulse Orb",
                 sphereDesc: "Organic sphere, magnetic hand",
-                sphereInstr: "🧲 Reach out to attract the sphere.",
                 warpTitle: "Dimension Warp",
-                warpDesc: "Audio-reactive tunnel & Bloom",
-                warpInstr: "🎧 Just watch the rhythm and relax."
+                warpDesc: "Audio-reactive tunnel & Bloom"
             }
         };
 
@@ -548,6 +701,119 @@
         // Init
         const savedLang = localStorage.getItem('preferredLanguage') || 'hu';
         setTimeout(() => setLanguage(savedLang), 100);
+
+        // --- MODAL FUNCTIONS ---
+        const modeContent = {
+            particle: {
+                hu: {
+                    title: "Részecske Vihar",
+                    desc: "30,000 interaktív részecske. Különböző kézmozdulatokkal irányíthatod az örvényt és az időt.",
+                    gestures: [
+                        { icon: "✋", name: "Bal Kéz: Levitáció", desc: "Tarts a bal tenyered felfelé, hogy a részecskék lebegjenek." },
+                        { icon: "⚫", name: "Bal Mutatóujj: Szingularitás", desc: "Mutass a bal mutatóujjaddal, hogy fekete lyukat hozz létre." },
+                        { icon: "🌪️", name: "Bal Csippentés: Örvény", desc: "Csippents a bal kezeddel egy tornádó indításához." },
+                        { icon: "🔦", name: "Jobb Mutatóujj: Sugár", desc: "Mutass a jobb mutatóujjaddal, hogy részecske-sugarat lőjj." },
+                        { icon: "🔮", name: "Jobb Csippentés: Vonzás", desc: "Csippents a jobb kezeddel, hogy gömbbe gyűjtsd a részecskéket." },
+                        { icon: "✊", name: "Ököl: Időstopp", desc: "Szorítsd ökölbe bármelyik kezed a megállításhoz." },
+                        { icon: "✨", name: "Két Kéz: Fúzió", desc: "Csippents mindkét kézzel egyszerre a gömbök egyesítéséhez." }
+                    ]
+                },
+                en: {
+                    title: "Particle Storm",
+                    desc: "30,000 interactive particles. Control the vortex and time with specific hand gestures.",
+                    gestures: [
+                        { icon: "✋", name: "Left Palm Up: Levitate", desc: "Hold left palm up to make particles float." },
+                        { icon: "⚫", name: "Left Point: Singularity", desc: "Point with left index to create a black hole." },
+                        { icon: "🌪️", name: "Left Pinch: Vortex", desc: "Pinch with left hand to start a tornado." },
+                        { icon: "🔦", name: "Right Point: Beam", desc: "Point with right index to shoot a particle beam." },
+                        { icon: "🔮", name: "Right Pinch: Attract", desc: "Pinch with right hand to gather particles." },
+                        { icon: "✊", name: "Fist: Time Freeze", desc: "Clench any fist to freeze time." },
+                        { icon: "✨", name: "Dual Pinch: Fusion", desc: "Pinch with both hands to merge the orbs." }
+                    ]
+                }
+            },
+            sphere: {
+                hu: {
+                    title: "Pulzáló Gömb",
+                    desc: "Organikus gömb amely mágneses vonzást érez a kezed felé.",
+                    gestures: [
+                        { icon: "🙌", name: "Szupernóva", desc: "Tárd szét két kezed egyszerre a gömb kiterjesztéséhez." },
+                        { icon: "🤏", name: "Gravitációs Örvény", desc: "Csippentsd össze jobb kezed ujjait a csavaró hatáshoz." },
+                        { icon: "👆", name: "Rámutatás", desc: "Mutass rá a gömbre a jobb mutatóujjaddal a kiemeléshez." }
+                    ]
+                },
+                en: {
+                    title: "Pulse Orb",
+                    desc: "An organic sphere that feels magnetic attraction towards your hands.",
+                    gestures: [
+                        { icon: "🙌", name: "Supernova", desc: "Spread both hands apart to expand the sphere." },
+                        { icon: "🤏", name: "Gravity Swirl", desc: "Pinch your right hand fingers to twist the sphere." },
+                        { icon: "👆", name: "Pointing", desc: "Point at the sphere with your right index finger to highlight it." }
+                    ]
+                },
+            },
+            warp: {
+                hu: {
+                    title: "Dimenzió Ugrás",
+                    desc: "Audio-reaktív alagút. Irányítsd a sebességet és az időt.",
+                    gestures: [
+                        { icon: "🤏", name: "Hipertér Ugrás", desc: "Csippents bármelyik kézzel a gyorsításhoz." },
+                        { icon: "✊", name: "Időlassítás", desc: "Szorítsd ökölbe a kezed a lassításhoz." },
+                        { icon: "🌀", name: "Alagút", desc: "A vizualizáció a zene ritmusára pulzál." }
+                    ]
+                },
+                en: {
+                    title: "Dimension Warp",
+                    desc: "Audio-reactive tunnel. Control speed and time.",
+                    gestures: [
+                        { icon: "🤏", name: "Hyperspace Boost", desc: "Pinch with any hand to boost speed." },
+                        { icon: "✊", name: "Time Slow", desc: "Clench your fist to slow down time." },
+                        { icon: "🌀", name: "Tunnel", desc: "Visualization pulses with the music rhythm." }
+                    ]
+                }
+            }
+        };
+
+        window.openModal = function (mode) {
+            const lang = localStorage.getItem('preferredLanguage') || 'hu';
+            const content = modeContent[mode][lang];
+
+            let gesturesHtml = content.gestures.map(g => `
+                <div class="gesture-item">
+                    <div class="gesture-icon">${g.icon}</div>
+                    <div class="gesture-text">
+                        <div class="gesture-name">${g.name}</div>
+                        <div class="gesture-desc">${g.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('modal-body').innerHTML = `
+                <div class="modal-title">${content.title}</div>
+                <div class="modal-desc">${content.desc}</div>
+                <div class="gestures-title">${lang === 'hu' ? 'Gesztusok:' : 'Gestures:'}</div>
+                ${gesturesHtml}
+            `;
+
+            document.getElementById('modal').classList.add('active');
+        };
+
+        window.closeModal = function () {
+            document.getElementById('modal').classList.remove('active');
+        };
+
+        window.closeModalOnBackdrop = function (event) {
+            if (event.target.id === 'modal') {
+                closeModal();
+            }
+        };
+
+        // ESC key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
     </script>
 </body>
 

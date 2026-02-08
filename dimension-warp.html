@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
     <title>Dimension Warp - Synesthetic Pulse</title>
     <!-- Core A-Frame -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
@@ -23,36 +24,47 @@
 
     <style>
         body {
-            background-color: #05010a;
-            color: #fff;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #000;
             margin: 0;
+            overflow: hidden;
+        }
 
-            button:focus,
-            input:focus {
-                outline: none;
-            }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-family: sans-serif;
+        }
 
-            .back-btn {
-                position: absolute;
-                top: 20px;
-                left: 20px;
-                color: rgba(255, 255, 255, 0.6);
-                text-decoration: none;
-                font-size: 1.2rem;
-                z-index: 10000;
-            }
-
-            .back-btn:hover {
-                color: #fff;
-            }
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
     </style>
 </head>
 
 <body>
-    <a href="index.html" class="back-btn">← Back to Menu</a>
+    <a href="index.html" class="back-btn" id="backBtn">← Back to Menu</a>
 
-    <a-scene audio-analyzer="fftSize: 1024; smoothing: 0.8" auto-music
+    <script>
+        // Set language based on localStorage preference
+        const lang = localStorage.getItem('preferredLanguage') || 'hu';
+        const backBtn = document.getElementById('backBtn');
+        if (lang === 'hu') {
+            backBtn.textContent = '← Vissza a Menübe';
+        } else {
+            backBtn.textContent = '← Back to Menu';
+        }
+    </script>
+
+    <a-scene audio-analyzer="fftSize: 1024; smoothing: 0.8" auto-music gesture-detector
         renderer="foveationLevel: 0; highRefreshRate: true; antialias: true; colorManagement: true"
         webxr="referenceSpaceType: local; requiredFeatures: hand-tracking; optionalFeatures: hit-test;"
         background="color: #000000">
@@ -60,8 +72,10 @@
         <!-- Modules -->
         <script type="module">
             import './src/systems/audio-analyzer.js';
+            import './src/systems/gesture-detector.js';
+            import './src/systems/hand-distance.js';
             import './src/components/dimension-warp.js';
-            import './src/components/dimension-mode-selector.js';
+
             import './src/components/auto-music.js';
         </script>
 
@@ -72,10 +86,10 @@
             </a-camera>
 
             <!-- Hand Interaction with Physics & Gestures -->
-            <a-entity id="leftHand" hand-tracking-controls="hand: left; modelStyle: mesh"
+            <a-entity id="leftHand" hand-tracking-controls="hand: left; modelStyle: mesh" hand-gestures="hand: left"
                 super-hands="grabStartButtons: pinchstarted; grabEndButtons: pinchended" hand-attractor="hand: left">
             </a-entity>
-            <a-entity id="rightHand" hand-tracking-controls="hand: right; modelStyle: mesh"
+            <a-entity id="rightHand" hand-tracking-controls="hand: right; modelStyle: mesh" hand-gestures="hand: right"
                 super-hands="grabStartButtons: pinchstarted; grabEndButtons: pinchended" hand-attractor="hand: right">
             </a-entity>
         </a-entity>
