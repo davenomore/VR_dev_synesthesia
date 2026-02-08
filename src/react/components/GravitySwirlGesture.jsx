@@ -20,9 +20,9 @@ export default function GravitySwirlGesture({ sphereRef }) {
     const currentSwirl = useRef(0.0);
 
     // Configuration
-    const MAX_TWIST = 1.0; // Reduced from 3.0 for less intense effect
-    const RAMP_SPEED = 1.5; // Slightly slower ramp up
-    const DECAY_SPEED = 3.0; // How fast it untwists
+    const MAX_TWIST = 0.8; // Reduced for subtler effect
+    const RAMP_SPEED = 0.5; // Slower ramp up for smoother animation
+    const DECAY_SPEED = 2.0; // Slower release
 
     useFrame((state, delta) => {
         // Only run if we can talk to sphere

@@ -259,7 +259,7 @@ const RADIUS_MAIN = 1.5;
 const InstancedSphere = React.forwardRef(function InstancedSphere(props, ref) {
     const meshRef = useRef();
     const colliderRef = useRef(); // Invisible sphere for raycasting
-    const noiseTexture = useTexture('/bnoise.png');
+    const noiseTexture = useTexture('bnoise.png');
     const analyzer = useMemo(() => new AudioAnalyzer(), []);
 
     // Start audio on first user interaction (browser policy)

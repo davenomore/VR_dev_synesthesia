@@ -81,19 +81,16 @@ function Scene() {
             {/* Gravity Swirl - right hand pinch to twist sphere */}
             <GravitySwirlGesture sphereRef={sphereRef} />
 
-            {/* VR Debug Panel - shows hand tracking status */}
-            <VRDebugPanel sphereRef={sphereRef} />
+            {/* VR Debug Panel - shows hand tracking status (Hidden for now) */}
+            {false && <VRDebugPanel sphereRef={sphereRef} />}
 
             {/* Main Visual - Click to trigger test ripple */}
             <group position={[0, 1.6, -8]} onClick={handleTestRipple}>
                 <InstancedSphere ref={sphereRef} />
             </group>
 
-            {/* OrbitControls: right-click to rotate, scroll to zoom */}
-            <OrbitControls
-                enablePan={false}
-                mouseButtons={{ LEFT: null, MIDDLE: 2, RIGHT: 0 }}
-            />
+            {/* OrbitControls: standard mouse controls */}
+            <OrbitControls enablePan={false} />
         </>
     );
 }
