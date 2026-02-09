@@ -381,15 +381,15 @@
             position: absolute;
             top: 12px;
             right: 12px;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(0, 255, 136, 0.2) 100%);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
             padding: 6px 12px;
-            border-radius: 20px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 4px;
             cursor: pointer;
             font-size: 0.75rem;
             font-weight: 600;
@@ -397,14 +397,13 @@
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
             z-index: 10;
-            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .info-btn:hover {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(0, 255, 136, 0.4) 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
-            border-color: #00ff88;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         }
 
         .info-btn .icon {
@@ -595,60 +594,68 @@
             particle: {
                 hu: {
                     title: "Részecske Vihar",
-                    desc: "30,000 interaktív részecske amely kezed mozgására reagál. A részecskék örvénylő mintákat alkotnak a zenével szinkronban.",
+                    desc: "30,000 interaktív részecske. Különböző kézmozdulatokkal irányíthatod az örvényt és az időt.",
                     gestures: [
-                        { icon: "👋", name: "Kéz Húzás", desc: "Húzd végig a kezed a térben hogy irányítsd a részecske örvényt." },
-                        { icon: "✋", name: "Szeparálás", desc: "Két kézzel húzz szét hogy szétoszlasd a részecskéket." },
-                        { icon: "🤏", name: "Csippentés", desc: "Csippentsd össze az ujjaidat hogy egy pontba gyűjtsd a részecskéket." }
+                        { icon: "✋", name: "Bal Kéz: Levitáció", desc: "Tarts a bal tenyered felfelé, hogy a részecskék lebegjenek." },
+                        { icon: "⚫", name: "Bal Mutatóujj: Szingularitás", desc: "Mutass a bal mutatóujjaddal, hogy fekete lyukat hozz létre." },
+                        { icon: "🌪️", name: "Bal Csippentés: Örvény", desc: "Csippents a bal kezeddel egy tornádó indításához." },
+                        { icon: "🔦", name: "Jobb Mutatóujj: Sugár", desc: "Mutass a jobb mutatóujjaddal, hogy részecske-sugarat lőjj." },
+                        { icon: "🔮", name: "Jobb Csippentés: Vonzás", desc: "Csippents a jobb kezeddel, hogy gömbbe gyűjtsd a részecskéket." },
+                        { icon: "✊", name: "Ököl: Időstopp", desc: "Szorítsd ökölbe bármelyik kezed a megállításhoz." },
+                        { icon: "✨", name: "Két Kéz: Fúzió", desc: "Csippents mindkét kézzel egyszerre a gömbök egyesítéséhez." }
                     ]
                 },
                 en: {
                     title: "Particle Storm",
-                    desc: "30,000 interactive particles that respond to your hand movements. Particles form swirling patterns synchronized with the music.",
+                    desc: "30,000 interactive particles. Control the vortex and time with specific hand gestures.",
                     gestures: [
-                        { icon: "👋", name: "Hand Wave", desc: "Wave your hand through space to guide the particle vortex." },
-                        { icon: "✋", name: "Separate", desc: "Pull apart with both hands to disperse the particles." },
-                        { icon: "🤏", name: "Pinch", desc: "Pinch your fingers together to collect particles into a single point." }
+                        { icon: "✋", name: "Left Palm Up: Levitate", desc: "Hold left palm up to make particles float." },
+                        { icon: "⚫", name: "Left Point: Singularity", desc: "Point with left index to create a black hole." },
+                        { icon: "🌪️", name: "Left Pinch: Vortex", desc: "Pinch with left hand to start a tornado." },
+                        { icon: "🔦", name: "Right Point: Beam", desc: "Point with right index to shoot a particle beam." },
+                        { icon: "🔮", name: "Right Pinch: Attract", desc: "Pinch with right hand to gather particles." },
+                        { icon: "✊", name: "Fist: Time Freeze", desc: "Clench any fist to freeze time." },
+                        { icon: "✨", name: "Dual Pinch: Fusion", desc: "Pinch with both hands to merge the orbs." }
                     ]
                 }
             },
             sphere: {
                 hu: {
                     title: "Pulzáló Gömb",
-                    desc: "Organikus gömb amely mágneses vonzást érez a kezed felé. Gesztusokkal alakítsd át a formáját és indíts el különleges effekteket.",
+                    desc: "Organikus gömb amely mágneses vonzást érez a kezed felé.",
                     gestures: [
-                        { icon: "🧲", name: "Mágneses Vonzás", desc: "Nyújtsd ki a kezed hogy vonzd magadhoz a gömböt. Minél közelebb vagy, annál erősebb a hatás." },
-                        { icon: "🤏", name: "Gravitációs Örvény", desc: "Csippentsd össze jobb kezed ujjait hogy csavaró gravitációs mezőt hozz létre." },
-                        { icon: "🙌", name: "Szupernóva", desc: "Tárd szét két kezed egyszerre hogy robbanásszerű effektet indíts a gömbön." }
+                        { icon: "🙌", name: "Szupernóva", desc: "Tárd szét két kezed egyszerre a gömb kiterjesztéséhez." },
+                        { icon: "🤏", name: "Gravitációs Örvény", desc: "Csippentsd össze jobb kezed ujjait a csavaró hatáshoz." },
+                        { icon: "👆", name: "Rámutatás", desc: "Mutass rá a gömbre a jobb mutatóujjaddal a kiemeléshez." }
                     ]
                 },
                 en: {
                     title: "Pulse Orb",
-                    desc: "An organic sphere that feels magnetic attraction towards your hands. Transform its shape and trigger special effects with gestures.",
+                    desc: "An organic sphere that feels magnetic attraction towards your hands.",
                     gestures: [
-                        { icon: "🧲", name: "Magnetic Attraction", desc: "Reach out your hand to attract the sphere towards you. The closer you are, the stronger the effect." },
-                        { icon: "🤏", name: "Gravity Swirl", desc: "Pinch your right hand fingers together to create a twisting gravitational field." },
-                        { icon: "🙌", name: "Supernova", desc: "Spread both hands apart simultaneously to trigger an explosive effect on the sphere." }
+                        { icon: "🙌", name: "Supernova", desc: "Spread both hands apart to expand the sphere." },
+                        { icon: "🤏", name: "Gravity Swirl", desc: "Pinch your right hand fingers to twist the sphere." },
+                        { icon: "👆", name: "Pointing", desc: "Point at the sphere with your right index finger to highlight it." }
                     ]
                 },
             },
             warp: {
                 hu: {
                     title: "Dimenzió Ugrás",
-                    desc: "Audio-reaktív tunnel és Bloom effekt. Ez a mód passzív: csak ülj le, élvezd a zenét és hagyd hogy az audió vezesse a vizualizációt.",
+                    desc: "Audio-reaktív alagút. Irányítsd a sebességet és az időt.",
                     gestures: [
-                        { icon: "🎧", name: "Passzív Mód", desc: "Nincs aktív gesztus vezérlés. Lazíts és hagyd hogy a zene irányítson mindent." },
-                        { icon: "🌀", name: "Alagút", desc: "Végtelen audio-reaktív alagút ami pulzál a ritmusra." },
-                        { icon: "✨", name: "Bloom Effekt", desc: "Fénygyűrűk és ragyogó effektek kísérik a dallamot." }
+                        { icon: "🤏", name: "Hipertér Ugrás", desc: "Csippents bármelyik kézzel a gyorsításhoz." },
+                        { icon: "✊", name: "Időlassítás", desc: "Szorítsd ökölbe a kezed a lassításhoz." },
+                        { icon: "🌀", name: "Alagút", desc: "A vizualizáció a zene ritmusára pulzál." }
                     ]
                 },
                 en: {
                     title: "Dimension Warp",
-                    desc: "Audio-reactive tunnel with Bloom effect. This mode is passive: just sit back, enjoy the music and let the audio drive the visualization.",
+                    desc: "Audio-reactive tunnel. Control speed and time.",
                     gestures: [
-                        { icon: "🎧", name: "Passive Mode", desc: "No active gesture control. Relax and let the music control everything." },
-                        { icon: "🌀", name: "Tunnel", desc: "Infinite audio-reactive tunnel that pulses with the rhythm." },
-                        { icon: "✨", name: "Bloom Effect", desc: "Light rings and glowing effects accompany the melody." }
+                        { icon: "🤏", name: "Hyperspace Boost", desc: "Pinch with any hand to boost speed." },
+                        { icon: "✊", name: "Time Slow", desc: "Clench your fist to slow down time." },
+                        { icon: "🌀", name: "Tunnel", desc: "Visualization pulses with the music rhythm." }
                     ]
                 }
             }
